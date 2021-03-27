@@ -20,4 +20,4 @@ const server = app.listen(PORT, handleListening);
 
 const io =socketIO(server);
 // 방금 접속한 socket이 자기를 제외한 나머지 클라이언트에게 hello라고 말함.
-io.on("connection", socket => socketController(socket));
+io.on("connection", socket => socketController(socket , io));

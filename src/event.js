@@ -10,7 +10,8 @@ const events = {
     beganPath: "beganPath",
     strokedPath: "strokedPath",
     fill : "fill",
-    filled : "filled"
+    filled : "filled",
+    playerUpdate: "palyerUpdate"
 };
 
 export default events;
