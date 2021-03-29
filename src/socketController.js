@@ -7,6 +7,7 @@ let sockets = [];
 let inProgress = false;
 let word = null;
 let leader = null;
+let timeout = null;
 // leader를 정하는 함수 
 const chooseLeader = () => sockets[Math.floor(Math.random() * sockets.length)];
 
@@ -18,22 +19,30 @@ const socketController = (socket, io) => {
     superBroadcast(events.playerUpdate, {sockets});
     //게임 시작하는 함수 
     const startGame = () => {
-      if(inProgress === false){
-        inProgress = true;
-        leader = chooseLeader();
-        word = chooseWords();
-        superBroadcast(events.gameStarting);
-        // 리더에게 그려야할 단어를 전달해줌.
-        setTimeout( () => {
-          superBroadcast(events.gameStarted);
-          io.to(leader.id).emit(events.leaderNotif, { word });
-        }, 5000);
-        }
+      if(sockets.length > 1) {
+        if(inProgress === false){
+          inProgress = true;
+          leader = chooseLeader();
+          word = chooseWords();
+          superBroadcast(events.gameStarting);
+          // 리더에게 그려야할 단어를 전달해줌.
+          setTimeout( () => {
+            superBroadcast(events.gameStarted);
+            io.to(leader.id).emit(events.leaderNotif, { word });
+            // 30초동안 정답을 못맞추면 게임이 끝나게 한다.
+            timeout =setTimeout(endGame, 30000);
+          }, 5000);
+          }
+      }
       };
       //게임 끝내는 함수 
     const endGame = () => {
       inProgress =false;
       superBroadcast(events.gameEnded);
+      if(timeout !== null){
+        clearTimeout(timeout);
+      }
+      setTimeout(() => startGame(), 2000);
     }
     //점수 추가 함수 
     const addPoints = (id) => {
@@ -53,9 +62,7 @@ const socketController = (socket, io) => {
         sockets.push({id : socket.id, points : 0, nickname :nickname});
         broadcast(events.newUser, {nickname});
         sendPlayerUpdate();
-        if(sockets.length === 2) {
-          startGame();
-        }
+          startGame(); 
     });
     // 유저 나가기
     socket.on(events.disconnect, () => {

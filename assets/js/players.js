@@ -1,4 +1,4 @@
-import { disableChat } from "./chat";
+import { disableChat, enableChat } from "./chat";
 import { disableCanvas, enableCanvas, hideControls, resetCanvas, showControls } from "./paint";
 
 const board = document.getElementById("jsPBoard");
@@ -24,8 +24,9 @@ export const handleGameStarted = () => {
     disableCanvas();
     //hide the canvas controls
     hideControls();
+    enableChat();
 };
-
+// 리더한테 알려주는 함수
 export const handleLeaderNotif = ( { word }) => {
     enableCanvas();
     showControls();
